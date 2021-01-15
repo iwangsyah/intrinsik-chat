@@ -1,4 +1,3 @@
 export default (StorageKey = {
-    AUTHTOKEN: 'authToken',
-    TOKEN: 'token'
+    USER: 'User',
 });

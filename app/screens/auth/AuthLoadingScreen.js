@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { Navigation } from '../../configs';
 import Theme from '../../styles/Theme'
+import { Astorage } from '../../util';
 
 const styles = StyleSheet.create({
   container: {
@@ -15,10 +17,17 @@ const styles = StyleSheet.create({
 export default function AuthLoadingScreen(props) {
 
   useEffect(() => {
-    setTimeout(() => {
-      props.navigation.navigate('Auth')
-    }, 1000)
+    checkUser();
   }, [])
+
+  const checkUser = async () => {
+    const user = await Astorage.getUser();
+    const navigate = user ? Navigation.APP : Navigation.AUTH;
+
+    setTimeout(() => {
+      props.navigation.navigate(navigate)
+    }, 1000)
+  }
 
   return (
     <View style={styles.container}>

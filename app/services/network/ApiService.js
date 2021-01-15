@@ -7,6 +7,12 @@ export default class ApiService {
   static login = (data) => BaseApi().post(Api.URL_LOGIN, data);
 
 
-  static data = async (data) => BaseApi().post(Api.URL_DATA, data);
+  static contacts = (data) => {
+    return BaseApi().post(Api.URL_CONTACTS, data);
+  }
+
+  static chatRooms = (data) => {
+    return BaseApi().post(Api.URL_CHAT_ROOMS, data);
+  }
 
 }

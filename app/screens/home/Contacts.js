@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, TouchableOpacity } from 'react-native';
-import moment from 'moment';
-import { Astorage, DateTimeUtil } from '../../util';
 import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { Navigation } from '../../configs';
+import { Astorage } from '../../util';
 
 const styles = StyleSheet.create({
   container: {
@@ -38,10 +37,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold'
   },
-  message: {
-    color: 'grey',
-    marginLeft: 5
-  },
   icon: {
     width: 40,
     height: 40,
@@ -51,31 +46,28 @@ const styles = StyleSheet.create({
 })
 
 
-const Home = (props) => {
+const Contacts = (props) => {
   const { navigation } = props;
-  const [user, setUser] = useState({});
-  const [rooms, setRooms] = useState([]);
+  const [contacts, setContacs] = useState([]);
 
   useEffect(() => {
-    getChatRooms();
+    getContacts();
   }, [])
 
-  const getChatRooms = async () => {
-    const userData = JSON.parse(await Astorage.getUser());
-    setUser(userData);
-    const { id } = userData;
-    const data = { id };
-    ApiService.chatRooms(data)
+  const getContacts = async () => {
+    const user = await Astorage.getUser();
+    const { email } = JSON.parse(user);
+    const data = { email };
+    ApiService.contacts(data)
       .then(response => {
         const { data } = response;
-        setRooms(data)
+        setContacs(data)
       })
       .catch(error => console.log(error));
   }
 
   const renderItem = ({ item }) => {
-    const username = user.username === item.username_1 ? item.username_2 : item.username_1;
-    const name = username.split(' ');
+    const name = item.username.split(' ');
     const random = Math.floor(Math.random() * Theme.colorList.length);
     return (
       <TouchableOpacity
@@ -89,25 +81,9 @@ const Home = (props) => {
               {name[1] ? name[1].charAt(0).toUpperCase() : ''}
             </Text>
           </View>
-          <View style={{ flex: 1 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Text style={styles.text}>{username}</Text>
-              <Text style={styles.message}>{DateTimeUtil.getChatTime(item.created_at)}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5 }}>
-              <Image
-                source={Images.icTicks}
-                style={{
-                  width: 15,
-                  height: 15,
-                  tintColor: item.is_read ? Theme.blue
-                    : Theme.txtTeritaryColor
-                }}
-              />
-              <Text style={styles.message}>{item.message}</Text>
-            </View>
-          </View>
+          <Text style={styles.text}>{item.username}</Text>
         </View>
+        <Image source={Images.icNext} style={styles.icon} />
       </TouchableOpacity>
     )
   }
@@ -115,7 +91,7 @@ const Home = (props) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={rooms}
+        data={contacts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItem}
       />
@@ -123,4 +99,4 @@ const Home = (props) => {
   );
 }
 
-export default Home;
+export default Contacts;

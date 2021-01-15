@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Image, View, Text } from 'react-native';
 import { InputText, Indicator, Button } from '../../components';
+import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
-import { ApiService } from '../../services';
+import { Astorage } from '../../util';
 
 const styles = StyleSheet.create({
   container: {
@@ -43,10 +44,6 @@ export default function Login(props) {
   const [indicatorMode, setIndicatorMode] = useState('loading');
   const [indicatorText, setIndicatorText] = useState('Loading...');
 
-  useEffect(() => {
-
-  }, [])
-
   const resetIndicator = () => {
     setTimeout(() => {
       setIndicator(false);
@@ -69,7 +66,7 @@ export default function Login(props) {
         .then(response => {
           const { data } = response;
           if (data.length) {
-            console.log('response: ', response);
+            Astorage.setUser(data[0]);
             navigation.navigate('App');
           } else {
             setIndicatorFailed('Data Not Found');

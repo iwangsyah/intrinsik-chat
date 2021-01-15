@@ -18,4 +18,13 @@ export default (defaultStyles = {
     shadowRadius: 3,
     shadowOpacity: 0.5,
   },
+  colorList: [
+    '#3498DB',
+    '#2ECC71',
+    '#F1C40F',
+    '#9B59B6',
+    '#EE5253',
+    '#222F3E',
+    '#82589F'
+  ]
 });
