@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Image, View, Text } from 'react-native';
-import { InputText, Button } from '../../components';
+import { InputText, Indicator, Button } from '../../components';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
+import { ApiService } from '../../services';
 
 const styles = StyleSheet.create({
   container: {
@@ -33,10 +34,51 @@ const styles = StyleSheet.create({
   }
 })
 
-export default function Login() {
+export default function Login(props) {
 
+  const { navigation } = props;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [indicator, setIndicator] = useState(false);
+  const [indicatorMode, setIndicatorMode] = useState('loading');
+  const [indicatorText, setIndicatorText] = useState('Loading...');
+
+  useEffect(() => {
+
+  }, [])
+
+  const resetIndicator = () => {
+    setTimeout(() => {
+      setIndicator(false);
+      setIndicatorMode('loading');
+      setIndicatorText('Loading...');
+    }, 1000)
+  }
+
+  const setIndicatorFailed = (title) => {
+    setIndicatorMode('failed');
+    setIndicatorText('Data Not Found');
+    resetIndicator();
+  }
+
+  const onLogin = () => {
+    const data = { email, password };
+    if (email && password) {
+      setIndicator(true);
+      ApiService.login(data)
+        .then(response => {
+          const { data } = response;
+          if (data.length) {
+            console.log('response: ', response);
+            navigation.navigate('App');
+          } else {
+            setIndicatorFailed('Data Not Found');
+          }
+        })
+        .catch(error => setIndicatorFailed('Failed'));
+    }
+  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -50,7 +92,7 @@ export default function Login() {
           title="Email"
           onChange={(text) => setEmail(text)}
           keyboardType="email-address"
-          value={email}
+          value={email.toLowerCase()}
         />
         <InputText
           title="Password"
@@ -58,9 +100,18 @@ export default function Login() {
           secureTextEntry
           value={password}
         />
-        <Button title="Sign In" style={{ marginTop: 30 }} />
+        <Button
+          title="Sign In"
+          style={{ marginTop: 30 }}
+          onPress={() => onLogin()}
+        />
         <Button title="Sign Up" isTransparent style={{ marginTop: 10 }} />
       </View>
+      <Indicator
+        visible={indicator}
+        mode={indicatorMode}
+        title={indicatorText}
+      />
     </SafeAreaView>
   );
 }

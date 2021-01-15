@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import Theme from '../styles/Theme';
 
 // indicator mode
 const loading = 'loading';
@@ -17,15 +16,15 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    zIndex: 3
+    zIndex: 3,
   },
   title: {
     textAlign: 'center',
-    fontSize: 14
-  }
+    fontSize: 14,
+  },
 });
 
-export default (Indicator = ({ title, style, visible, mode }) => {
+export default Indicator = ({ title, style, visible, mode }) => {
   let newTitle;
 
   if (mode === failed) {
@@ -47,28 +46,25 @@ export default (Indicator = ({ title, style, visible, mode }) => {
         style,
         {
           position: visible ? 'absolute' : 'relative',
-          display: visible ? 'flex' : 'none'
-        }
-      ]}
-    >
-      <View
-        style={{ backgroundColor: '#ffffff', borderRadius: 4, padding: 16 }}
-      >
+          display: visible ? 'flex' : 'none',
+        },
+      ]}>
+      <View style={{ backgroundColor: '#ffffff', borderRadius: 4, padding: 16 }}>
         <ActivityIndicator
           size="large"
           color="#000000"
           style={{
             marginBottom: 8,
-            display: mode === failed ? 'none' : 'flex'
+            display: mode === failed ? 'none' : 'flex',
           }}
         />
         <Text style={styles.title}>{newTitle}</Text>
       </View>
     </View>
   );
-});
+};
 
 Indicator.defaultProps = {
   visible: true,
-  mode: loading
+  mode: loading,
 };

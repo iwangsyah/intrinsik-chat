@@ -1,36 +1,51 @@
 import Axios from 'axios';
 import _ from 'lodash';
 import { Api } from '../../configs';
-import { Astorage } from '../../util';
 
-const defaultHeader = async () => {
-  const authToken = await Astorage.getAuthToken();
-  return {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${authToken}`
-  };
-};
+const interceptorsRequest = (instance, hotel) =>
+  instance.interceptors.request.use(
+    async config => {
+      const header = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      };
 
-const BaseApi = async (isFormData) => {
-  const header = await defaultHeader();
+      config.headers = {
+        ...config.headers,
+        ...header
+      };
 
-  const instance = Axios.create({
-    baseURL: Api.BASE_URL,
-    timeout: 5000,
-    headers: header
-  });
+      return config;
+    },
+    // Do something before request is sent
+    error => Promise.reject(error)
+  );
 
+const interceptorsResponse = instance =>
   instance.interceptors.response.use(
     response => response,
     error => {
-      const { status } = error.response;
-      console.log('status: ', status);
+      if (_.isEmpty(error.response)) {
+        return Promise.reject(error);
+      }
       return Promise.reject(error);
     }
   );
 
-  return instance;
-};
+export default (BaseApi = () => {
+  const source = Axios.CancelToken.source();
+  setTimeout(() => {
+    source.cancel();
+  }, 10000);
 
-export default BaseApi;
+  const instance = Axios.create({
+    baseURL: Api.BASE_URL,
+    timeout: 10000,
+    cancelToken: source.token
+  });
+
+  interceptorsRequest(instance);
+  interceptorsResponse(instance);
+
+  return instance;
+});

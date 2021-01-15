@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { SafeAreaView, KeyboardAvoidingView, TouchableOpacity, Keyboard, ScrollView, StyleSheet, TextInput, Image, View, Text } from 'react-native';
+import { SafeAreaView, KeyboardAvoidingView, TouchableOpacity, Keyboard, ScrollView, StyleSheet, StatusBar, TextInput, Image, View, Text, Platform } from 'react-native';
 import io from 'socket.io-client';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
@@ -8,7 +8,6 @@ import { ApiService } from '../../services';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
     backgroundColor: Theme.bgPrimaryColor
   },
   header: {
@@ -40,7 +39,7 @@ const styles = StyleSheet.create({
     borderColor: Theme.primaryColor,
     marginBottom: 16,
     borderRadius: 15,
-    borderWidth: 3,
+    borderWidth: 2,
     padding: 8,
   },
   chatText: {
@@ -58,6 +57,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 60,
+    fontWeight: 'bold',
     marginHorizontal: 12,
     color: Theme.txtPrimaryColor
   },
@@ -69,8 +69,9 @@ const styles = StyleSheet.create({
 })
 
 
-export default function Home() {
+export default function Home(props) {
 
+  const { navigation } = props;
   const [isOpen, setIsOpen] = useState(false);
   const [isBottom, setIsBottom] = useState(true);
   const keyboardShowListener = useRef(null);
@@ -94,7 +95,8 @@ export default function Home() {
   ]);
 
 
-  const socket = io("https://obscure-temple-13039.herokuapp.com/");
+  // const socket = io("https://obscure-temple-13039.herokuapp.com/");
+  const socket = io("http://127.0.0.1:3000");
 
   useEffect(() => {
     socket.on("chat message", msg => {
@@ -129,8 +131,9 @@ export default function Home() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={Theme.bgPrimaryColor} barStyle='dark-content' />
       <View>
-        <TouchableOpacity style={styles.header}>
+        <TouchableOpacity style={styles.header} onPress={() => navigation.pop()}>
           <Image source={Images.icBack} style={styles.icon} />
           <Text style={styles.txtBack}>Back</Text>
         </TouchableOpacity>
@@ -138,12 +141,12 @@ export default function Home() {
         <View style={styles.lineSeparator} />
       </View>
       <KeyboardAvoidingView
-        behavior="padding"
+        behavior={Platform.OS === 'ios' ? 'padding' : {}}
         style={{ flex: 1 }}
         enableOnAndroid
       >
         <ScrollView
-          style={[styles.container, { paddingBottom: 50 }]}
+          style={[styles.container, { padding: 16, paddingBottom: 50 }]}
           ref={scrollViewRef}
           onContentSizeChange={() => {
             scrollViewRef.current.scrollToEnd({ animated: false })
