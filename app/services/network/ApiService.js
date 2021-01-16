@@ -6,6 +6,7 @@ export default class ApiService {
 
   static login = (data) => BaseApi().post(Api.URL_LOGIN, data);
 
+  static register = (data) => BaseApi().post(Api.URL_REGISTER, data);
 
   static contacts = (data) => BaseApi().post(Api.URL_CONTACTS, data);
 

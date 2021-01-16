@@ -147,7 +147,10 @@ const Home = (props) => {
       <Header
         title='Chats'
         txtRight='Log out'
-        onPress={() => Actions.logout()}
+        onPress={() => {
+          props.setUser({});
+          navigation.navigate(Navigation.AUTH);
+        }}
       />
       <ActivityIndicator
         size="large"
@@ -177,6 +180,10 @@ const mapStateToProps = (state) => ({
   user: state.user.user,
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+  setUser: (user) => {
+    dispatch(Actions.setUser(user));
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

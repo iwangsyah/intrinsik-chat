@@ -136,8 +136,11 @@ const AppStack = createStackNavigator(
 
 const AuthStack = createStackNavigator(
   {
-    Login: {
+    [Navigation.LOGIN]: {
       screen: Screen.Login,
+    },
+    [Navigation.REGISTER]: {
+      screen: Screen.Register,
     },
   },
   {

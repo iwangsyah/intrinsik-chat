@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import _ from 'lodash';
 import { connect } from 'react-redux';
 import { Navigation } from '../../configs';
 import Theme from '../../styles/Theme'
-import { Astorage } from '../../util';
 
 const styles = StyleSheet.create({
   container: {
@@ -21,7 +21,7 @@ const AuthLoadingScreen = (props) => {
   }, [])
 
   const checkUser = async () => {
-    const navigate = props.user ? Navigation.APP
+    const navigate = !_.isEmpty(props.user) ? Navigation.APP
       : Navigation.AUTH;
 
     setTimeout(() => {

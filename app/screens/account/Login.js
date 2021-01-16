@@ -8,6 +8,7 @@ import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { Astorage } from '../../util';
 import Actions from '../../actions';
+import { Navigation } from '../../configs';
 
 const styles = StyleSheet.create({
   container: {
@@ -61,7 +62,6 @@ const Login = (props) => {
   }
 
   const onLogin = () => {
-    console.log('kena: ', props);
     const data = { email, password };
     if (email && password) {
       setIndicator(true);
@@ -71,7 +71,7 @@ const Login = (props) => {
           const { data } = response;
           if (data.length) {
             props.setUser(data[0]);
-            navigation.navigate('App');
+            navigation.navigate(Navigation.APP);
           } else {
             setIndicatorFailed('Data Not Found');
           }
@@ -111,7 +111,14 @@ const Login = (props) => {
           style={{ marginTop: 30 }}
           onPress={() => onLogin()}
         />
-        <Button title="Sign Up" isTransparent style={{ marginTop: 10 }} />
+        <Button
+          title="Sign Up"
+          isTransparent
+          style={{ marginTop: 10 }}
+          onPress={() => {
+            navigation.navigate(Navigation.REGISTER);
+          }}
+        />
       </KeyboardAwareScrollView>
       <Indicator
         visible={indicator}
