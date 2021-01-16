@@ -13,8 +13,10 @@ export default class ApiService {
 
   static chatList = (data) => BaseApi().get(`${Api.URL_CHAT}/list/${data.id}`);
 
-  static sendChat = (data) => BaseApi().post(`${Api.URL_CHAT}/list`, data);
+  static sendChat = (data) => BaseApi().post(`${Api.URL_CHAT}/send`, data);
 
-  static sendReadChat = (data) => BaseApi().post(`${Api.URL_CHAT}/list`, data);
+  static updateLastChat = (data) => BaseApi().post(`${Api.URL_CHAT}/last`, data);
+
+  static sendReadChat = (data) => BaseApi().post(`${Api.URL_CHAT}/read`, data);
 
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Image, View, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, Image, View, Text, Platform } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { InputText, Indicator, Button } from '../../components';
 import { ApiService } from '../../services';
 import Images from '../../assets/images';
@@ -9,7 +10,6 @@ import { Astorage } from '../../util';
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 50,
     backgroundColor: Theme.bgPrimaryColor
   },
   containerLogo: {
@@ -59,12 +59,14 @@ export default function Login(props) {
   }
 
   const onLogin = () => {
+    console.log('kena');
     const data = { email, password };
     if (email && password) {
       setIndicator(true);
       ApiService.login(data)
         .then(response => {
           const { data } = response;
+          console.log('res: ', response);
           if (data.length) {
             Astorage.setUser(data[0]);
             navigation.navigate('App');
@@ -72,14 +74,19 @@ export default function Login(props) {
             setIndicatorFailed('Data Not Found');
           }
         })
-        .catch(error => setIndicatorFailed('Failed'));
+        .catch(error => {
+          console.log('err: ', error);
+          setIndicatorFailed('Failed')
+        });
     }
   }
 
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.container}>
+      <KeyboardAwareScrollView extraHeight={20} extraScrollHeight={20} enableOnAndroid style={[styles.container, {
+        paddingHorizontal: 50
+      }]}>
         <View style={styles.containerLogo}>
           <Image source={Images.icLogo} style={styles.logo} />
           <Text style={styles.text}>Intrinsik OMS</Text>
@@ -103,7 +110,7 @@ export default function Login(props) {
           onPress={() => onLogin()}
         />
         <Button title="Sign Up" isTransparent style={{ marginTop: 10 }} />
-      </View>
+      </KeyboardAwareScrollView>
       <Indicator
         visible={indicator}
         mode={indicatorMode}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
 import moment from 'moment';
 import { Astorage, DateTimeUtil } from '../../util';
 import { ApiService } from '../../services';
@@ -40,6 +40,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold'
   },
+  empty: {
+    fontWeight: 'bold',
+    color: Theme.txtTeritaryColor,
+    textAlign: 'center',
+    marginTop: 50
+  },
   message: {
     color: 'grey',
     marginLeft: 5
@@ -49,7 +55,7 @@ const styles = StyleSheet.create({
     height: 40,
     tintColor: Theme.blue,
     resizeMode: 'contain'
-  }
+  },
 })
 
 
@@ -57,6 +63,7 @@ const Home = (props) => {
   const { navigation } = props;
   const [user, setUser] = useState({});
   const [rooms, setRooms] = useState([]);
+  const [indicator, setIndicator] = useState(true);
 
   useEffect(() => {
     getChatRooms();
@@ -70,9 +77,10 @@ const Home = (props) => {
     ApiService.chatRooms(data)
       .then(response => {
         const { data } = response;
-        setRooms(data)
+        setRooms(data);
+        setIndicator(false);
       })
-      .catch(error => console.log(error));
+      .catch(error => setIndicator(false));
   }
 
   const renderItem = ({ item }) => {
@@ -116,16 +124,24 @@ const Home = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={Theme.bgPrimaryColor} barStyle="dark-content" />
       <Header
         title='Chats'
         txtRight='Log out'
         onPress={() => Actions.logout()}
       />
-      <FlatList
-        data={rooms}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
+      <ActivityIndicator
+        size="large"
+        color={Theme.primaryColor}
+        style={{ marginTop: 50, display: indicator ? 'flex' : 'none' }}
       />
+      {!indicator &&
+        <FlatList
+          data={rooms}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderItem}
+          ListEmptyComponent={() => <Text style={styles.empty}>Empty Data</Text>}
+        />}
     </SafeAreaView >
   );
 }

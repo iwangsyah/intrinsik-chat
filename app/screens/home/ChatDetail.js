@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { SafeAreaView, KeyboardAvoidingView, TouchableOpacity, Keyboard, ScrollView, StyleSheet, StatusBar, TextInput, Image, View, Text, Platform } from 'react-native';
+import { SafeAreaView, KeyboardAvoidingView, TouchableOpacity, Keyboard, ScrollView, StyleSheet, StatusBar, TextInput, Image, View, Text, Platform, ActivityIndicator } from 'react-native';
 import moment from 'moment';
 import io from 'socket.io-client';
 import Images from '../../assets/images';
@@ -78,6 +78,7 @@ const ChatDetail = (props) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isBottom, setIsBottom] = useState(true);
+  const [indicator, setIndicator] = useState(true);
   const keyboardShowListener = useRef(null);
   const keyboardHideListener = useRef(null);
   const scrollViewRef = useRef();
@@ -87,20 +88,34 @@ const ChatDetail = (props) => {
 
 
 
-  // const socket = io("https://obscure-temple-13039.herokuapp.com/");
-  const socket = io("http://127.0.0.1:3000");
+  const socket = io("https://obscure-temple-13039.herokuapp.com/");
+  // const socket = io("http://127.0.0.1:3000");
 
   useEffect(() => {
     getChatList();
     socket.on("chat message", message => {
+      console.log('mm: ', message);
       setChatList(prevChatList => [...prevChatList, message]);
       ApiService.sendChat(message)
-        .then(response => { })
+        .then(response => {
+          const { data } = response;
+          console.log('res: ', response);
+          updateLastChat(data);
+        })
         .catch(error => console.log(error));
     });
   }, [])
 
-
+  const updateLastChat = async (item) => {
+    const { id_chat, id_room } = item;
+    const data = { id_chat, id_room };
+    ApiService.updateLastChat(data)
+      .then(response => {
+        const { data } = response;
+        setIndicator(false);
+      })
+      .catch(error => setIndicator(false));
+  }
 
   useEffect(() => {
     keyboardShowListener.current = Keyboard.addListener('keyboardDidShow', () => setIsOpen(true));
@@ -124,13 +139,14 @@ const ChatDetail = (props) => {
         if (data && data[data.length - 1].id_user !== user.id) {
           readChat(id);
         }
+        setIndicator(false);
       })
-      .catch(error => console.log(error));
+      .catch(error => setIndicator(false));
   }
 
   const readChat = async (id) => {
     const data = { id };
-    ApiService.readChat(data)
+    ApiService.sendReadChat(data)
       .then(() => { })
       .catch(error => console.log(error));
   }
@@ -153,6 +169,7 @@ const ChatDetail = (props) => {
       socket.emit("chat message", message)
       setChat('')
     }
+    console.log('asas');
   }
 
   return (
@@ -166,6 +183,11 @@ const ChatDetail = (props) => {
         <Text style={styles.title}>{username}</Text>
         <View style={styles.lineSeparator} />
       </View>
+      <ActivityIndicator
+        size="large"
+        color={Theme.primaryColor}
+        style={{ marginTop: 50, display: indicator ? 'flex' : 'none' }}
+      />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : {}}
         style={{ flex: 1 }}
@@ -186,41 +208,29 @@ const ChatDetail = (props) => {
           }}>
           {chatList.map((item, index) => (
             <View style={[styles.chatBox, {
-              marginBottom: index == chatList.length - 1 ? 32
-                : 16,
-              alignSelf: item.id_user === 1 ? 'flex-end'
-                : 'flex-start',
-              backgroundColor: item.id_user === 1 ? Theme.bgPrimaryColor
-                : Theme.primaryColor
+              marginBottom: index == chatList.length - 1 ? 32 : 16,
+              alignSelf: item.id_user === user.id ? 'flex-end' : 'flex-start',
+              backgroundColor: item.id_user === user.id ? Theme.bgPrimaryColor : Theme.primaryColor
             }]}>
               <Text style={[styles.chatText, {
-                color: item.id_user === user.id ? Theme.primaryColor
-                  : Theme.txtSecondaryColor,
+                color: item.id_user === user.id ? Theme.primaryColor : Theme.txtSecondaryColor,
               }]}>
                 {item.message}
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                <Text
-                  style={{
-                    fontSize: 11,
-                    marginRight: 5,
-                    color: item.id_user === user.id ? Theme.txtTeritaryColor
-                      : Theme.lineColor
-                  }}
-                >
+                <Text style={{
+                  fontSize: 11,
+                  marginRight: 5,
+                  color: item.id_user === user.id ? Theme.txtTeritaryColor : Theme.lineColor
+                }} >
                   {DateTimeUtil.getChatTime(item.created_at)}
                 </Text>
-                <Image
-                  source={Images.icTicks}
-                  style={{
-                    width: 15,
-                    height: 15,
-                    tintColor: item.is_read ? Theme.blue
-                      : Theme.txtTeritaryColor,
-                    display: item.id_user === user.id ? 'flex'
-                      : 'none'
-                  }}
-                />
+                <Image source={Images.icTicks} style={{
+                  width: 15,
+                  height: 15,
+                  tintColor: item.is_read ? Theme.blue : Theme.txtTeritaryColor,
+                  display: item.id_user === user.id ? 'flex' : 'none'
+                }} />
               </View>
             </View>
           ))}

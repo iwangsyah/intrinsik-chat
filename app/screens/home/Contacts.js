@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, TouchableOpacity, StatusBar } from 'react-native';
+import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
 import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
@@ -38,6 +38,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold'
   },
+  empty: {
+    fontWeight: 'bold',
+    color: Theme.txtTeritaryColor,
+    textAlign: 'center',
+    marginTop: 50
+  },
   icon: {
     width: 40,
     height: 40,
@@ -51,6 +57,7 @@ const Contacts = (props) => {
   const { navigation } = props;
   const [user, setUser] = useState({});
   const [contacts, setContacs] = useState([]);
+  const [indicator, setIndicator] = useState(true);
 
   useEffect(() => {
     getContacts();
@@ -64,9 +71,10 @@ const Contacts = (props) => {
     ApiService.contacts(data)
       .then(response => {
         const { data } = response;
-        setContacs(data)
+        setContacs(data);
+        setIndicator(false);
       })
-      .catch(error => console.log(error));
+      .catch(error => setIndicator(false));
   }
 
   const renderItem = ({ item }) => {
@@ -93,17 +101,24 @@ const Contacts = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor={Theme.bgPrimaryColor} />
+      <StatusBar backgroundColor={Theme.bgPrimaryColor} barStyle="dark-content" />
       <Header
         title='Contacts'
         txtRight='Log out'
         onPress={() => Actions.logout()}
       />
-      <FlatList
-        data={contacts}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={renderItem}
+      <ActivityIndicator
+        size="large"
+        color={Theme.primaryColor}
+        style={{ marginTop: 50, display: indicator ? 'flex' : 'none' }}
       />
+      {!indicator &&
+        <FlatList
+          data={contacts}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderItem}
+          ListEmptyComponent={() => <Text style={styles.empty}>Empty Data</Text>}
+        />}
     </SafeAreaView >
   );
 }
