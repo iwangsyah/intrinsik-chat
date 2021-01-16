@@ -80,7 +80,7 @@ const Home = (props) => {
     return (
       <TouchableOpacity
         style={styles.content}
-        onPress={() => navigation.navigate(Navigation.CHATDETAIL)}
+        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user, username })}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={[styles.titleContainer, { backgroundColor: Theme.colorList[random] }]}>

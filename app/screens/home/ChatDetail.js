@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { SafeAreaView, KeyboardAvoidingView, TouchableOpacity, Keyboard, ScrollView, StyleSheet, StatusBar, TextInput, Image, View, Text, Platform } from 'react-native';
+import moment from 'moment';
 import io from 'socket.io-client';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { ApiService } from '../../services';
+import { DateTimeUtil } from '../../util';
 
 const styles = StyleSheet.create({
   container: {
@@ -72,6 +74,8 @@ const styles = StyleSheet.create({
 const ChatDetail = (props) => {
 
   const { navigation } = props;
+  const { item, user, username } = navigation.state.params;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isBottom, setIsBottom] = useState(true);
   const keyboardShowListener = useRef(null);
@@ -82,16 +86,21 @@ const ChatDetail = (props) => {
   const [chatList, setChatList] = useState([]);
 
 
+
   // const socket = io("https://obscure-temple-13039.herokuapp.com/");
   const socket = io("http://127.0.0.1:3000");
 
   useEffect(() => {
-    socket.on("chat message", msg => {
-      console.log('msg: ', msg);
-      let message = { id: 1, message: msg, is_read: false }
+    getChatList();
+    socket.on("chat message", message => {
       setChatList(prevChatList => [...prevChatList, message]);
+      ApiService.sendChat(message)
+        .then(response => { })
+        .catch(error => console.log(error));
     });
   }, [])
+
+
 
   useEffect(() => {
     keyboardShowListener.current = Keyboard.addListener('keyboardDidShow', () => setIsOpen(true));
@@ -105,13 +114,34 @@ const ChatDetail = (props) => {
     }
   });
 
+  const getChatList = async () => {
+    const id = item.id_room;
+    const data = { id };
+    ApiService.chatList(data)
+      .then(response => {
+        const { data } = response;
+        console.log('data: ', data);
+        setChatList(data);
+      })
+      .catch(error => console.log(error));
+  }
+
   const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
     return layoutMeasurement.height + contentOffset.y >= contentSize.height - 60;
   };
 
   const onSendMessage = () => {
     if (chat.trim()) {
-      socket.emit("chat message", chat)
+      const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
+      let message = {
+        id_room: item.id_room,
+        id_user: user.id,
+        type: 'text',
+        data: null,
+        message: chat,
+        created_at
+      };
+      socket.emit("chat message", message)
       setChat('')
     }
   }
@@ -124,7 +154,7 @@ const ChatDetail = (props) => {
           <Image source={Images.icBack} style={styles.icon} />
           <Text style={styles.txtBack}>Back</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>John Smith</Text>
+        <Text style={styles.title}>{username}</Text>
         <View style={styles.lineSeparator} />
       </View>
       <KeyboardAvoidingView
@@ -149,13 +179,13 @@ const ChatDetail = (props) => {
             <View style={[styles.chatBox, {
               marginBottom: index == chatList.length - 1 ? 32
                 : 16,
-              alignSelf: item.id === 1 ? 'flex-end'
+              alignSelf: item.id_user === 1 ? 'flex-end'
                 : 'flex-start',
-              backgroundColor: item.id === 1 ? Theme.bgPrimaryColor
+              backgroundColor: item.id_user === 1 ? Theme.bgPrimaryColor
                 : Theme.primaryColor
             }]}>
               <Text style={[styles.chatText, {
-                color: item.id === 1 ? Theme.primaryColor
+                color: item.id_user === user.id ? Theme.primaryColor
                   : Theme.txtSecondaryColor,
               }]}>
                 {item.message}
@@ -165,12 +195,12 @@ const ChatDetail = (props) => {
                   style={{
                     fontSize: 11,
                     marginRight: 5,
-                    color: item.id === 1 ? Theme.txtTeritaryColor
+                    color: item.id_user === user.id ? Theme.txtTeritaryColor
                       : Theme.lineColor
                   }}
                 >
-                  10:11
-              </Text>
+                  {DateTimeUtil.getChatTime(item.created_at)}
+                </Text>
                 <Image
                   source={Images.icTicks}
                   style={{
@@ -178,7 +208,7 @@ const ChatDetail = (props) => {
                     height: 15,
                     tintColor: item.is_read ? Theme.blue
                       : Theme.txtTeritaryColor,
-                    display: item.id === 1 ? 'flex'
+                    display: item.id_user === user.id ? 'flex'
                       : 'none'
                   }}
                 />

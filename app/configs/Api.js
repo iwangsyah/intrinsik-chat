@@ -3,5 +3,6 @@ const BASE_URL = __DEV__ ? 'http://localhost:3000' : 'https://obscure-temple-130
 export default (Api = {
   URL_LOGIN: `${BASE_URL}/login`,
   URL_CONTACTS: `${BASE_URL}/contacts`,
-  URL_CHAT_ROOMS: `${BASE_URL}/chat-rooms`
+  URL_CHAT_LIST: `${BASE_URL}/chat-list`,
+  URL_CHAT_ROOMS: `${BASE_URL}/chat-rooms`,
 });
