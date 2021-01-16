@@ -9,10 +9,12 @@ export default class ApiService {
 
   static contacts = (data) => BaseApi().post(Api.URL_CONTACTS, data);
 
-  static chatRooms = (data) => BaseApi().post(Api.URL_CHAT_ROOMS, data);
+  static chatRooms = (data) => BaseApi().post(`${Api.URL_CHAT}/rooms`, data);
 
-  static chatList = (data) => BaseApi().get(`${Api.URL_CHAT_LIST}/${data.id}`);
+  static chatList = (data) => BaseApi().get(`${Api.URL_CHAT}/list/${data.id}`);
 
-  static sendChat = (data) => BaseApi().post(Api.URL_CHAT_LIST, data);
+  static sendChat = (data) => BaseApi().post(`${Api.URL_CHAT}/list`, data);
+
+  static sendReadChat = (data) => BaseApi().post(`${Api.URL_CHAT}/list`, data);
 
 }

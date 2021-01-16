@@ -120,9 +120,18 @@ const ChatDetail = (props) => {
     ApiService.chatList(data)
       .then(response => {
         const { data } = response;
-        console.log('data: ', data);
         setChatList(data);
+        if (data && data[data.length - 1].id_user !== user.id) {
+          readChat(id);
+        }
       })
+      .catch(error => console.log(error));
+  }
+
+  const readChat = async (id) => {
+    const data = { id };
+    ApiService.readChat(data)
+      .then(() => { })
       .catch(error => console.log(error));
   }
 
