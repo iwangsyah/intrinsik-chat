@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { connect } from 'react-redux';
 import { Navigation } from '../../configs';
 import Theme from '../../styles/Theme'
 import { Astorage } from '../../util';
@@ -14,15 +15,14 @@ const styles = StyleSheet.create({
 });
 
 
-export default function AuthLoadingScreen(props) {
-
+const AuthLoadingScreen = (props) => {
   useEffect(() => {
     checkUser();
   }, [])
 
   const checkUser = async () => {
-    const user = await Astorage.getUser();
-    const navigate = user ? Navigation.APP : Navigation.AUTH;
+    const navigate = props.user ? Navigation.APP
+      : Navigation.AUTH;
 
     setTimeout(() => {
       props.navigation.navigate(navigate)
@@ -37,3 +37,11 @@ export default function AuthLoadingScreen(props) {
     </View>
   );
 }
+
+const mapStateToProps = (state) => ({
+  user: state.user.user,
+});
+
+const mapDispatchToProps = (dispatch) => ({});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AuthLoadingScreen);

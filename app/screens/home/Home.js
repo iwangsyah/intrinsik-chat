@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, StatusBar, TouchableOpacity, ActivityIndicator } from 'react-native';
-import moment from 'moment';
-import { Astorage, DateTimeUtil } from '../../util';
+import {
+  SafeAreaView,
+  StyleSheet,
+  FlatList,
+  Image,
+  Text,
+  View,
+  StatusBar,
+  RefreshControl,
+  TouchableOpacity,
+  ActivityIndicator
+} from 'react-native';
+import { connect } from 'react-redux';
 import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { Navigation } from '../../configs';
 import { Header } from '../../components';
 import Actions from '../../actions';
+import { DateTimeUtil } from '../../util';
 
 const styles = StyleSheet.create({
   container: {
@@ -61,7 +72,6 @@ const styles = StyleSheet.create({
 
 const Home = (props) => {
   const { navigation } = props;
-  const [user, setUser] = useState({});
   const [rooms, setRooms] = useState([]);
   const [indicator, setIndicator] = useState(true);
 
@@ -70,10 +80,9 @@ const Home = (props) => {
   }, [])
 
   const getChatRooms = async () => {
-    const userData = JSON.parse(await Astorage.getUser());
-    setUser(userData);
-    const { id } = userData;
+    const { id } = props.user;
     const data = { id };
+    setIndicator(true);
     ApiService.chatRooms(data)
       .then(response => {
         const { data } = response;
@@ -83,14 +92,18 @@ const Home = (props) => {
       .catch(error => setIndicator(false));
   }
 
+  const onRefresh = () => {
+    getChatRooms();
+  }
+
   const renderItem = ({ item }) => {
-    const username = user.username === item.username_1 ? item.username_2 : item.username_1;
+    const username = props.user.username === item.username_1 ? item.username_2 : item.username_1;
     const name = username.split(' ');
     const random = Math.floor(Math.random() * Theme.colorList.length);
     return (
       <TouchableOpacity
         style={styles.content}
-        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user, username })}
+        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user: props.user, username })}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={[styles.titleContainer, { backgroundColor: Theme.colorList[random] }]}>
@@ -140,10 +153,24 @@ const Home = (props) => {
           data={rooms}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
-          ListEmptyComponent={() => <Text style={styles.empty}>Empty Data</Text>}
+          ListEmptyComponent={() => (
+            <Text style={styles.empty}>Empty Data</Text>
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={indicator}
+              onRefresh={() => onRefresh()}
+            />
+          }
         />}
     </SafeAreaView >
   );
 }
 
-export default Home;
+const mapStateToProps = (state) => ({
+  user: state.user.user,
+});
+
+const mapDispatchToProps = (dispatch) => ({});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

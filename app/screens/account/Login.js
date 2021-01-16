@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Image, View, Text, Platform } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { connect } from 'react-redux';
 import { InputText, Indicator, Button } from '../../components';
 import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { Astorage } from '../../util';
+import Actions from '../../actions';
 
 const styles = StyleSheet.create({
   container: {
@@ -35,7 +37,7 @@ const styles = StyleSheet.create({
   }
 })
 
-export default function Login(props) {
+const Login = (props) => {
 
   const { navigation } = props;
   const [email, setEmail] = useState('');
@@ -59,16 +61,16 @@ export default function Login(props) {
   }
 
   const onLogin = () => {
-    console.log('kena');
+    console.log('kena: ', props);
     const data = { email, password };
     if (email && password) {
       setIndicator(true);
       ApiService.login(data)
         .then(response => {
-          const { data } = response;
           console.log('res: ', response);
+          const { data } = response;
           if (data.length) {
-            Astorage.setUser(data[0]);
+            props.setUser(data[0]);
             navigation.navigate('App');
           } else {
             setIndicatorFailed('Data Not Found');
@@ -119,4 +121,16 @@ export default function Login(props) {
     </SafeAreaView>
   );
 }
+
+const mapStateToProps = (state) => ({
+  user: state.user.user,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  setUser: (user) => {
+    dispatch(Actions.setUser(user));
+  },
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
 

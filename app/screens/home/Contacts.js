@@ -1,10 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  FlatList,
+  Image,
+  Text,
+  View,
+  StatusBar,
+  RefreshControl,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import { connect } from 'react-redux';
 import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { Navigation } from '../../configs';
-import { Astorage } from '../../util';
 import Actions from '../../actions';
 
 const styles = StyleSheet.create({
@@ -55,7 +66,6 @@ const styles = StyleSheet.create({
 
 const Contacts = (props) => {
   const { navigation } = props;
-  const [user, setUser] = useState({});
   const [contacts, setContacs] = useState([]);
   const [indicator, setIndicator] = useState(true);
 
@@ -64,10 +74,9 @@ const Contacts = (props) => {
   }, [])
 
   const getContacts = async () => {
-    const userData = JSON.parse(await Astorage.getUser());
-    setUser(userData);
-    const { email } = userData;
+    const { email } = props.user;
     const data = { email };
+    setIndicator(true);
     ApiService.contacts(data)
       .then(response => {
         const { data } = response;
@@ -77,13 +86,17 @@ const Contacts = (props) => {
       .catch(error => setIndicator(false));
   }
 
+  const onRefresh = () => {
+    getContacts();
+  }
+
   const renderItem = ({ item }) => {
     const username = item.username.split(' ');
     const random = Math.floor(Math.random() * Theme.colorList.length);
     return (
       <TouchableOpacity
         style={styles.content}
-        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user, username })}
+        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user: props.user, username })}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={[styles.titleContainer, { backgroundColor: Theme.colorList[random] }]}>
@@ -117,10 +130,24 @@ const Contacts = (props) => {
           data={contacts}
           keyExtractor={(item, index) => index.toString()}
           renderItem={renderItem}
-          ListEmptyComponent={() => <Text style={styles.empty}>Empty Data</Text>}
+          ListEmptyComponent={() => (
+            <Text style={styles.empty}>Empty Data</Text>
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={indicator}
+              onRefresh={() => onRefresh()}
+            />
+          }
         />}
     </SafeAreaView >
   );
 }
 
-export default Contacts;
+const mapStateToProps = (state) => ({
+  user: state.user.user,
+});
+
+const mapDispatchToProps = (dispatch) => ({});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Contacts);

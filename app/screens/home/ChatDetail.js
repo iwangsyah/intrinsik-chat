@@ -135,13 +135,17 @@ const ChatDetail = (props) => {
     ApiService.chatList(data)
       .then(response => {
         const { data } = response;
+        console.log('res: ', response);
         setChatList(data);
         if (data && data[data.length - 1].id_user !== user.id) {
           readChat(id);
         }
         setIndicator(false);
       })
-      .catch(error => setIndicator(false));
+      .catch(error => {
+        console.log(error);
+        setIndicator(false)
+      });
   }
 
   const readChat = async (id) => {
@@ -213,6 +217,7 @@ const ChatDetail = (props) => {
               backgroundColor: item.id_user === user.id ? Theme.bgPrimaryColor : Theme.primaryColor
             }]}>
               <Text style={[styles.chatText, {
+                flex: 1,
                 color: item.id_user === user.id ? Theme.primaryColor : Theme.txtSecondaryColor,
               }]}>
                 {item.message}
