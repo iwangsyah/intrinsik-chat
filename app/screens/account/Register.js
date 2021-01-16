@@ -57,18 +57,23 @@ const Login = (props) => {
 
   const setIndicatorFailed = (title) => {
     setIndicatorMode('failed');
-    setIndicatorText('Data Not Found');
+    setIndicatorText(title);
     resetIndicator();
   }
 
-  const onLogin = () => {
+  const onRegister = () => {
     const data = { email, username, password };
     if (email && username && password) {
       setIndicator(true);
       ApiService.register(data)
         .then(response => {
-          setIndicatorFailed('Register Success');
-          navigation.navigate(Navigation.LOGIN)
+          const { data } = response;
+          if (data[0] && data[0].email === email) {
+            setIndicatorFailed('Email already registered');
+          } else {
+            setIndicatorFailed('Register Success');
+            navigation.navigate(Navigation.LOGIN);
+          }
         })
         .catch(error => {
           console.log('err: ', error);
