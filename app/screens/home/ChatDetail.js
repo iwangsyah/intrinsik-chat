@@ -98,15 +98,14 @@ const ChatDetail = (props) => {
       setChatList(prevChatList => [...prevChatList, message]);
       ApiService.sendChat(message)
         .then(response => {
-          const { data } = response;
-          console.log('res: ', response);
-          updateLastChat(data);
+          getChatList(true);
         })
         .catch(error => console.log(error));
     });
   }, [])
 
   const updateLastChat = async (item) => {
+    console.log('it: ', item);
     const { id_chat, id_room } = item;
     const data = { id_chat, id_room };
     ApiService.updateLastChat(data)
@@ -129,18 +128,22 @@ const ChatDetail = (props) => {
     }
   });
 
-  const getChatList = async () => {
+  const getChatList = async (isUpdate) => {
     const id = item.id_room;
     const data = { id };
     ApiService.chatList(data)
       .then(response => {
         const { data } = response;
-        console.log('res: ', response);
-        setChatList(data);
-        if (data && data[data.length - 1].id_user !== user.id) {
-          readChat(id);
+        if (isUpdate) {
+          updateLastChat(data[data.length - 1]);
+        } else {
+          setChatList(data);
+          if (data && data[data.length - 1].id_user !== user.id) {
+            readChat(id);
+          }
+          setIndicator(false);
         }
-        setIndicator(false);
+
       })
       .catch(error => {
         console.log(error);
@@ -173,7 +176,6 @@ const ChatDetail = (props) => {
       socket.emit("chat message", message)
       setChat('')
     }
-    console.log('asas');
   }
 
   return (
@@ -217,7 +219,6 @@ const ChatDetail = (props) => {
               backgroundColor: item.id_user === user.id ? Theme.bgPrimaryColor : Theme.primaryColor
             }]}>
               <Text style={[styles.chatText, {
-                flex: 1,
                 color: item.id_user === user.id ? Theme.primaryColor : Theme.txtSecondaryColor,
               }]}>
                 {item.message}
