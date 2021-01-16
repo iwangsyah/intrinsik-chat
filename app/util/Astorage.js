@@ -5,4 +5,5 @@ import { StorageKey as key } from '../configs';
 export default class Astorage {
   static getUser = () => AsyncStorage.getItem(key.USER);
   static setUser = params => AsyncStorage.setItem(key.USER, JSON.stringify(params));
+  static removeUser = () => AsyncStorage.removeItem(key.USER);
 }

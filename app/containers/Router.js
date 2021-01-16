@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, TouchableOpacity, Image, View } from 'react-native';
+import { SafeAreaView, TouchableOpacity, Image, View, Text } from 'react-native';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator, CardStyleInterpolators } from 'react-navigation-stack';
@@ -77,6 +77,12 @@ const BottomNavigationHome = createBottomTabNavigator(
               }}
               source={Images.icLogo}
             />
+            <Text style={[BottomTabBar.text, {
+              color:
+                navigation.state.index == 0
+                  ? Theme.primaryColor
+                  : 'lightgrey'
+            }]}>Chats</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={BottomTabBar.tabBar}
@@ -93,6 +99,12 @@ const BottomNavigationHome = createBottomTabNavigator(
               }}
               source={Images.icContacts}
             />
+            <Text style={[BottomTabBar.text, {
+              color:
+                navigation.state.index == 1
+                  ? Theme.primaryColor
+                  : 'lightgrey'
+            }]}>Contacts</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

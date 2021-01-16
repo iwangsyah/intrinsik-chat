@@ -5,7 +5,7 @@ export default StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'center',
-    height: 55,
+    height: 60,
     backgroundColor: Theme.bgPrimaryColor,
     shadowColor: 'rgba(0, 0, 0, 0.15)',
     shadowOffset: {
@@ -22,5 +22,10 @@ export default StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  text: {
+    fontSize: 10,
+    marginTop: 5,
+    fontWeight: 'bold'
   }
 });

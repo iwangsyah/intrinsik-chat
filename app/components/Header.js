@@ -1,51 +1,34 @@
 import React from 'react';
-import { Image, View, Text, Platform, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, View, Text, Platform, StyleSheet } from 'react-native';
 import Theme from '../styles/Theme';
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    height: Platform.OS === 'ios' ? 100 : 60,
-    backgroundColor: Theme.primaryColor,
-    justifyContent: 'space-between', alignItems: 'center',
+    height: Platform.OS === 'ios' ? 60 : 40,
+    backgroundColor: Theme.bgPrimaryColor,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20
   },
   title: {
-    fontSize: 16,
-    fontFamily: Theme.fontSemiBold,
-    color: Theme.txtWhite
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: Theme.txtPrimaryColor
   },
-  icRight: {
-    width: 60,
-    alignItems: 'center',
-    paddingRight: 5,
-    paddingVertical: 10
+  logout: {
+    color: Theme.blue,
+    fontWeight: 'bold'
   }
 })
 
 export default (Header = ({
-  onBack,
-  isBack,
-  icRight,
   onPress,
+  txtRight,
   title
 }) => (
-  <View style={styles.container}>
-    <TouchableOpacity
-      disabled={!isBack}
-      style={{ padding: 24, width: 60 }}
-      onPress={() => onBack()}>
-      {/* <Image
-          style={{ width: 12, display: isBack ? 'flex' : 'none' }}
-          source={Images.icBack}
-        /> */}
-    </TouchableOpacity>
+  <View style={[styles.container, Theme.shadow]}>
     <Text style={styles.title}>{title}</Text>
-    <TouchableOpacity
-      disabled={!icRight}
-      style={styles.icRight}
-      onPress={() => onPress()}
-    >
-      {icRight}
-    </TouchableOpacity>
+    <Text style={styles.logout} onPress={onPress}>{txtRight}</Text>
   </View>
 ));

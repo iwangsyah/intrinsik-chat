@@ -6,6 +6,8 @@ import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { Navigation } from '../../configs';
+import { Header } from '../../components';
+import Actions from '../../actions';
 
 const styles = StyleSheet.create({
   container: {
@@ -114,6 +116,11 @@ const Home = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Header
+        title='Chats'
+        txtRight='Log out'
+        onPress={() => Actions.logout()}
+      />
       <FlatList
         data={rooms}
         keyExtractor={(item, index) => index.toString()}

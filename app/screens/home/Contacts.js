@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, TouchableOpacity } from 'react-native';
+import { SafeAreaView, StyleSheet, FlatList, Image, Text, View, TouchableOpacity, StatusBar } from 'react-native';
 import { ApiService } from '../../services';
 import Images from '../../assets/images';
 import Theme from '../../styles/Theme';
 import { Navigation } from '../../configs';
 import { Astorage } from '../../util';
+import Actions from '../../actions';
 
 const styles = StyleSheet.create({
   container: {
@@ -48,6 +49,7 @@ const styles = StyleSheet.create({
 
 const Contacts = (props) => {
   const { navigation } = props;
+  const [user, setUser] = useState({});
   const [contacts, setContacs] = useState([]);
 
   useEffect(() => {
@@ -55,8 +57,9 @@ const Contacts = (props) => {
   }, [])
 
   const getContacts = async () => {
-    const user = await Astorage.getUser();
-    const { email } = JSON.parse(user);
+    const userData = JSON.parse(await Astorage.getUser());
+    setUser(userData);
+    const { email } = userData;
     const data = { email };
     ApiService.contacts(data)
       .then(response => {
@@ -67,29 +70,35 @@ const Contacts = (props) => {
   }
 
   const renderItem = ({ item }) => {
-    const name = item.username.split(' ');
+    const username = item.username.split(' ');
     const random = Math.floor(Math.random() * Theme.colorList.length);
     return (
       <TouchableOpacity
         style={styles.content}
-        onPress={() => navigation.navigate(Navigation.CHATDETAIL)}
+        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user, username })}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={[styles.titleContainer, { backgroundColor: Theme.colorList[random] }]}>
             <Text style={styles.title}>
-              {name[0].charAt(0).toUpperCase()}
-              {name[1] ? name[1].charAt(0).toUpperCase() : ''}
+              {username[0].charAt(0).toUpperCase()}
+              {username[1] ? username[1].charAt(0).toUpperCase() : ''}
             </Text>
           </View>
           <Text style={styles.text}>{item.username}</Text>
         </View>
         <Image source={Images.icNext} style={styles.icon} />
-      </TouchableOpacity>
+      </TouchableOpacity >
     )
   }
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar backgroundColor={Theme.bgPrimaryColor} />
+      <Header
+        title='Contacts'
+        txtRight='Log out'
+        onPress={() => Actions.logout()}
+      />
       <FlatList
         data={contacts}
         keyExtractor={(item, index) => index.toString()}
