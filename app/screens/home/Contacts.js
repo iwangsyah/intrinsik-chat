@@ -96,7 +96,7 @@ const Contacts = (props) => {
     return (
       <TouchableOpacity
         style={styles.content}
-        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user: props.user, username })}
+        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user: props.user, id: item.id, username: item.username })}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={[styles.titleContainer, { backgroundColor: Theme.colorList[random] }]}>

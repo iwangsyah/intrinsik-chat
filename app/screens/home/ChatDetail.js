@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
 const ChatDetail = (props) => {
 
   const { navigation } = props;
-  const { item, user, username } = navigation.state.params;
+  const { item, user, id, username } = navigation.state.params;
 
   const [isOpen, setIsOpen] = useState(false);
   const [isBottom, setIsBottom] = useState(true);
@@ -85,6 +85,7 @@ const ChatDetail = (props) => {
 
   const [chat, setChat] = useState('');
   const [chatList, setChatList] = useState([]);
+  const [room, setRoom] = useState(item.id_room ? item : {});
 
 
 
@@ -92,21 +93,58 @@ const ChatDetail = (props) => {
   // const socket = io("http://127.0.0.1:3000");
 
   useEffect(() => {
-    getChatList();
+    console.log(navigation.state.params);
+    item.id_room ? getChatList(item) : getRoomChat();
     socket.on("chat message", message => {
-      console.log('mm: ', message);
       setChatList(prevChatList => [...prevChatList, message]);
       ApiService.sendChat(message)
         .then(response => {
-          getChatList(true);
+          getChatList(room);
         })
         .catch(error => console.log(error));
     });
   }, [])
 
+  const createRoom = () => {
+    const data = {
+      id_user_1: user.id,
+      id_user_2: id,
+      username_1: user.username,
+      username_2: username,
+      last_chat_id: 0
+    }
+    ApiService.createRoom(data)
+      .then(response => {
+        getRoomChat();
+        setIndicator(false);
+      })
+      .catch(error => setIndicator(false));
+  }
+
+  const getRoomChat = () => {
+    const data = {
+      id_user_1: user.id,
+      id_user_2: id
+    }
+
+    ApiService.getRoom(data)
+      .then(response => {
+        const { data } = response;
+
+        if (data.length) {
+          getChatList(data[0]);
+          setRoom(data[0]);
+        } else {
+          createRoom()
+        }
+        setIndicator(false);
+      })
+      .catch(error => setIndicator(false));
+  }
+
   const updateLastChat = async (item) => {
-    console.log('it: ', item);
     const { id_chat, id_room } = item;
+
     const data = { id_chat, id_room };
     ApiService.updateLastChat(data)
       .then(response => {
@@ -128,22 +166,19 @@ const ChatDetail = (props) => {
     }
   });
 
-  const getChatList = async (isUpdate) => {
-    const id = item.id_room;
-    const data = { id };
-    ApiService.chatList(data)
+  const getChatList = async (data) => {
+    const item = { id: data.id_room };
+    ApiService.chatList(item)
       .then(response => {
         const { data } = response;
-        if (isUpdate) {
+        if (data.length) {
           updateLastChat(data[data.length - 1]);
-        } else {
           setChatList(data);
-          if (data && data[data.length - 1].id_user !== user.id) {
+          if (data[data.length - 1].id_user !== user.id) {
             readChat(id);
           }
-          setIndicator(false);
         }
-
+        setIndicator(false);
       })
       .catch(error => {
         console.log(error);
@@ -166,7 +201,7 @@ const ChatDetail = (props) => {
     if (chat.trim()) {
       const created_at = moment().format('YYYY-MM-DD HH:mm:ss');
       let message = {
-        id_room: item.id_room,
+        id_room: room.id_room,
         id_user: user.id,
         type: 'text',
         data: null,

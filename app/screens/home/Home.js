@@ -83,13 +83,18 @@ const Home = (props) => {
     const { id } = props.user;
     const data = { id };
     setIndicator(true);
+    console.log(data);
     ApiService.chatRooms(data)
       .then(response => {
+        console.log('response: ', response);
         const { data } = response;
         setRooms(data);
         setIndicator(false);
       })
-      .catch(error => setIndicator(false));
+      .catch(error => {
+        console.log(error);
+        setIndicator(false)
+      });
   }
 
   const onRefresh = () => {
@@ -97,13 +102,14 @@ const Home = (props) => {
   }
 
   const renderItem = ({ item }) => {
+    const id = props.user.id === item.id_user_1 ? item.id_user_2 : item.id_user_1;
     const username = props.user.username === item.username_1 ? item.username_2 : item.username_1;
     const name = username.split(' ');
     const random = Math.floor(Math.random() * Theme.colorList.length);
     return (
       <TouchableOpacity
         style={styles.content}
-        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user: props.user, username })}
+        onPress={() => navigation.navigate(Navigation.CHATDETAIL, { item, user: props.user, id, username })}
       >
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <View style={[styles.titleContainer, { backgroundColor: Theme.colorList[random] }]}>
