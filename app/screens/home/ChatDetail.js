@@ -107,7 +107,6 @@ const ChatDetail = (props) => {
 
 
   const createChatRoom = () => {
-    console.log('cretate');
     const data = {
       id_user_1: user.id,
       id_user_2: id,
@@ -133,12 +132,10 @@ const ChatDetail = (props) => {
     ApiService.getRoom(data)
       .then(response => {
         const { data } = response;
-        console.log('r: ', data);
         if (data.length) {
           getChatList(data[0]);
           setRoom(data[0]);
         } else {
-          console.log(2);
           createChatRoom();
         }
         setIndicator(false);
@@ -177,7 +174,7 @@ const ChatDetail = (props) => {
         if (data.length) {
           setChatList(data);
           if (data[data.length - 1].id_user !== user.id) {
-            readChat(id);
+            readChat(item.id);
           }
           updateLastChat(data[data.length - 1]);
         }
@@ -192,7 +189,7 @@ const ChatDetail = (props) => {
   const readChat = async (id) => {
     const data = { id };
     ApiService.sendReadChat(data)
-      .then(() => { })
+      .then((response) => { })
       .catch(error => console.log(error));
   }
 
