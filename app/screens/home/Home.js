@@ -83,10 +83,8 @@ const Home = (props) => {
     const { id } = props.user;
     const data = { id };
     setIndicator(true);
-    console.log(data);
     ApiService.chatRooms(data)
       .then(response => {
-        console.log('response: ', response);
         const { data } = response;
         setRooms(data);
         setIndicator(false);

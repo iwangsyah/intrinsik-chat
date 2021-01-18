@@ -14,7 +14,7 @@ export default (defaultStyles = {
       width: 0,
       height: 3,
     },
-    elevation: 5,
+    elevation: 3,
     shadowRadius: 3,
     shadowOpacity: 0.5,
   },

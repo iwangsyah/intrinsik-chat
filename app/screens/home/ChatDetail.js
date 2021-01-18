@@ -93,8 +93,8 @@ const ChatDetail = (props) => {
   // const socket = io("http://127.0.0.1:3000");
 
   useEffect(() => {
-    console.log(navigation.state.params);
     item.id_room ? getChatList(item) : getRoomChat();
+
     socket.on("chat message", message => {
       setChatList(prevChatList => [...prevChatList, message]);
       ApiService.sendChat(message)
@@ -105,7 +105,9 @@ const ChatDetail = (props) => {
     });
   }, [])
 
-  const createRoom = () => {
+
+  const createChatRoom = () => {
+    console.log('cretate');
     const data = {
       id_user_1: user.id,
       id_user_2: id,
@@ -115,7 +117,8 @@ const ChatDetail = (props) => {
     }
     ApiService.createRoom(data)
       .then(response => {
-        getRoomChat();
+        const { data } = response;
+        setRoom(data[0]);
         setIndicator(false);
       })
       .catch(error => setIndicator(false));
@@ -130,12 +133,13 @@ const ChatDetail = (props) => {
     ApiService.getRoom(data)
       .then(response => {
         const { data } = response;
-
+        console.log('r: ', data);
         if (data.length) {
           getChatList(data[0]);
           setRoom(data[0]);
         } else {
-          createRoom()
+          console.log(2);
+          createChatRoom();
         }
         setIndicator(false);
       })
@@ -144,7 +148,6 @@ const ChatDetail = (props) => {
 
   const updateLastChat = async (item) => {
     const { id_chat, id_room } = item;
-
     const data = { id_chat, id_room };
     ApiService.updateLastChat(data)
       .then(response => {
@@ -172,11 +175,11 @@ const ChatDetail = (props) => {
       .then(response => {
         const { data } = response;
         if (data.length) {
-          updateLastChat(data[data.length - 1]);
           setChatList(data);
           if (data[data.length - 1].id_user !== user.id) {
             readChat(id);
           }
+          updateLastChat(data[data.length - 1]);
         }
         setIndicator(false);
       })
